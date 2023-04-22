@@ -8,8 +8,7 @@ export async function register(password, email) {
     },
     body: JSON.stringify({ password, email })
   })
-    .then(res => res.json())
-    .catch((err) => console.log(err));
+    .then(res => getResponseData(res));
 };
 
 export async function login(password, email) {
@@ -20,8 +19,7 @@ export async function login(password, email) {
     },
     body: JSON.stringify({ password, email })
   })
-    .then(res => res.json())
-    .catch((err) => console.log(err));
+    .then(res => getResponseData(res));
 };
 
 export async function checkToken(token) {
@@ -32,6 +30,12 @@ export async function checkToken(token) {
       'Authorization': `Bearer ${token}`,
     }
   })
-    .then(res => res.json())
-    .catch((err) => console.log(err));
+    .then(res => getResponseData(res));
 }
+
+function getResponseData(res) {
+  if (!res.ok) {
+    return Promise.reject(`Ошибка: ${res.status}`);
+  }
+  return res.json();
+} 

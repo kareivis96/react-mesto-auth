@@ -1,5 +1,5 @@
 import logo from '../../images/logo_white.svg';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, Routes, Route } from 'react-router-dom';
 
 function Header(props) {
   const navigate = useNavigate();
@@ -18,11 +18,14 @@ function Header(props) {
         {props.userInfo.userInfo.email && <p className='header__mail'>{props.userInfo.userInfo.email}</p>}
         {
           props.loggedIn.loggedIn
-            ? <button onClick={signOut} className="header__link">Выйти</button>
-            : <Link to={props.currentRoute === "/sign-in" ? "/sign-up" : "/sign-in"} className="header__link">{props.currentRoute === "/sign-in" ? "Регистрация" : "Войти"}</Link>
+            ? <button button onClick={signOut} className="header__link">Выйти</button>
+            : <Routes>
+              <Route path="/sign-in" element={<Link to="/sign-up" className="header__link">Регистрация</Link>} />
+              <Route path="/sign-up" element={<Link to="/sign-in" className="header__link">Войти</Link>} />
+            </Routes>
         }
       </div>
-    </header>
+    </header >
   )
 }
 export default Header;

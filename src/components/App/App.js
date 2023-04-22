@@ -1,5 +1,5 @@
 import { React, useState, useEffect } from 'react';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import Header from '../Header/Header.js';
 import Footer from '../Footer/Footer.js';
@@ -19,7 +19,6 @@ import api from '../../utils/Api.js';
 import * as auth from '../../utils/auth';
 
 function App() {
-  const [currentRoute, setCurrentRoute] = useState(window.location.pathname);
   const [loggedIn, setLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState({})
   const [currentUser, setCurrentUser] = useState({});
@@ -29,7 +28,6 @@ function App() {
   const [infoTooltip, setInfoTooltip] = useState({ isOpened: false, sucsess: true });
   const [selectedCard, setSelectedCard] = useState({ name: '', link: '' });
   const [cards, setCards] = useState([]);
-  const location = useLocation();
   const navigate = useNavigate();
 
   const handleEditProfileClick = () => setIsEditProfilePopupOpen(true);
@@ -84,22 +82,19 @@ function App() {
     handleTokenCheck();
   }, []);
   useEffect(() => {
-    api.getUserData()
-      .then(res => setCurrentUser(res))
-      .catch(err => console.log(err));
-  }, []);
-  useEffect(() => {
-    api.getStartedCardsPack().then(res => {
-      setCards(res);
-    }).catch(err => console.log(err))
-  }, []);
-  useEffect(() => {
-    setCurrentRoute(location.pathname);
-  }, [location]);
+    if (loggedIn) {
+      api.getUserData()
+        .then(res => setCurrentUser(res))
+        .catch(err => console.log(err));
+      api.getStartedCardsPack()
+        .then(res => setCards(res))
+        .catch(err => console.log(err))
+    }
+  }, [loggedIn]);
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
-      <Header loggedIn={{ loggedIn, setLoggedIn }} userInfo={{ userInfo, setUserInfo }} currentRoute={currentRoute} />
+      <Header loggedIn={{ loggedIn, setLoggedIn }} userInfo={{ userInfo, setUserInfo }} />
       <Routes>
         <Route path="/" element={
           <ProtectedRoute
@@ -120,6 +115,7 @@ function App() {
         <Route path="/sign-in" element={
           <Login handleLogin={handleLogin} setUserInfo={setUserInfo} />
         } />
+        <Route path="*" element={<Navigate to="/sign-in" replace />} />
       </Routes>
       <Footer />
 
@@ -127,7 +123,7 @@ function App() {
       <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
       <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handlePlaceAdd} />
       <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
-      <InfoTooltip infoTooltipState={infoTooltip} onClose={closeAllPopups} />
+      <InfoTooltip infoTooltipState={infoTooltip} onClose={closeAllPopups} successText="Вы успешно зарегистрировались!" errorText="Что - то пошло не так! Попробуйте ещё раз." />
 
     </CurrentUserContext.Provider>
   );

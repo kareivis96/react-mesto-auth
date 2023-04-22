@@ -2,14 +2,15 @@ import React from "react";
 
 function ImagePopup(props) {
 
-  const handleEscClick = (evt) => { if (evt.key === 'Escape') props.onClose() }
-  const handleOverlayClick = (evt) => { if (evt.target === evt.currentTarget) props.onClose() }
+  const handleEscClick = (evt) => evt.key === 'Escape' && props.onClose();
+  const handleOverlayClick = (evt) => evt.target === evt.currentTarget && props.onClose();
   React.useEffect(() => {
+    if (!props.card.link) return;
     document.addEventListener('keydown', handleEscClick);
     return () => {
       document.removeEventListener('keydown', handleEscClick);
     }
-  });
+  }, [props.card.link]);
 
   return (
     <div id="image-popup" onMouseDown={handleOverlayClick} className={`popup popup_type_image-popup ${props.card.link ? 'popup_opened' : ''}`}>
